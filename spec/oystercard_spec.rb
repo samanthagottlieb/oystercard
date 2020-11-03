@@ -25,9 +25,9 @@ describe Oystercard do
     end
 
     it 'enforces a maximum balance' do
-      max_balance = Oystercard::LIMIT
-      subject.top_up(max_balance)
-      expect { subject.top_up(1) }.to raise_error("Maximum balance of #{max_balance} reached")
+      max = Oystercard::MAX_BALANCE
+      subject.top_up(max)
+      expect { subject.top_up(1) }.to raise_error("Maximum balance of #{max} reached")
     end
   end
 
@@ -42,49 +42,47 @@ describe Oystercard do
     end
   end
 
-  describe "in_journey?" do
-
-    it "responds to the method" do
+  describe '#in_journey?' do
+    it 'responds to the method' do
       expect(subject).to respond_to(:in_journey?)
     end
 
-    it "changes status of @in_journey when called" do
+    it 'changes status of @in_journey when called' do
       expect(subject.in_journey?).to be true | false
     end
 
-    it "is initially not in a journey" do
+    it 'is initially not in a journey' do
       expect(subject.in_journey).to be false
     end
-
   end
 
   describe '#touch_in' do
-
-    it "responds to the method" do
+    it 'responds to the method' do
       expect(subject).to respond_to(:touch_in)
     end
 
-    it "changes @in_journey to true" do
+    it 'changes @in_journey to true' do
+      min = Oystercard::MIN_BALANCE
+      subject.top_up(min)
       subject.touch_in
       expect(subject.in_journey).to be true
     end
 
+    it 'raises an error if balance is insufficient' do
+      expect { subject.touch_in }.to raise_error("Balance insufficient please top up")
+    end
   end
 
-  describe "#touch_out" do
-
-    it "responnds to the method" do
-      expect(subject).to respond_to(:touch_in)
+  describe '#touch_out' do
+    it 'responds to the method' do
+      expect(subject).to respond_to(:touch_out)
     end
 
-    it "changes @in_journey to false" do
+    it 'changes @in_journey to false' do
+      subject.top_up(10)
       subject.touch_in
       subject.touch_out
       expect(subject.in_journey).to be false
     end
-
   end
-
-
-
-  end
+end
