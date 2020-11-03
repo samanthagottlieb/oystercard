@@ -41,4 +41,50 @@ describe Oystercard do
       expect { subject.deduct(10) }.to change { subject.balance }.by(-10)
     end
   end
-end
+
+  describe "in_journey?" do
+
+    it "responds to the method" do
+      expect(subject).to respond_to(:in_journey?)
+    end
+
+    it "changes status of @in_journey when called" do
+      expect(subject.in_journey?).to be true | false
+    end
+
+    it "is initially not in a journey" do
+      expect(subject.in_journey).to be false
+    end
+
+  end
+
+  describe '#touch_in' do
+
+    it "responds to the method" do
+      expect(subject).to respond_to(:touch_in)
+    end
+
+    it "changes @in_journey to true" do
+      subject.touch_in
+      expect(subject.in_journey).to be true
+    end
+
+  end
+
+  describe "#touch_out" do
+
+    it "responnds to the method" do
+      expect(subject).to respond_to(:touch_in)
+    end
+
+    it "changes @in_journey to false" do
+      subject.touch_in
+      subject.touch_out
+      expect(subject.in_journey).to be false
+    end
+
+  end
+
+
+
+  end
