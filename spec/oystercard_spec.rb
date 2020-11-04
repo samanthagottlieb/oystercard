@@ -2,6 +2,8 @@ require 'oystercard'
 
 describe Oystercard do
   let(:station) { double :bank }
+  let(:x_station) { double :hackney }
+  let(:journey_history) { { entry_station: station, exit_station: x_station } }
 
   it 'creates an Oystercard instance' do
     expect(subject).to be_instance_of(Oystercard)
@@ -62,7 +64,27 @@ describe Oystercard do
     end
 
     it 'deducts minimum fare from balance' do
-      expect { subject.touch_out }.to change { subject.balance }.by(-Oystercard::MIN_FARE)
+      expect { subject.touch_out(x_station) }.to change { subject.balance }.by(-Oystercard::MIN_FARE)
+    end
+
+    it 'assigns a station at touch out' do
+      subject.top_up(10)
+      subject.touch_in(station)
+      subject.touch_out(x_station)
+      expect(subject.exit_station).to eq(x_station)
+    end
+  end
+
+  describe '#journeys' do
+    it 'stores journey history in an instance variable' do
+      expect(subject.journeys).to be_empty
+    end
+
+    it 'stores a journey inside a hash' do
+      subject.top_up(10)
+      subject.touch_in(station)
+      subject.touch_out(x_station)
+      expect(subject.journeys).to eq([journey_history])
     end
   end
 end
