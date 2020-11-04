@@ -1,6 +1,8 @@
 require 'oystercard'
 
 describe Oystercard do
+  let(:station) { double :bank }
+
   it 'creates an Oystercard instance' do
     expect(subject).to be_instance_of(Oystercard)
   end
@@ -35,42 +37,28 @@ describe Oystercard do
     it 'responds to the method' do
       expect(subject).to respond_to(:in_journey?)
     end
-
-    it 'changes status of @in_journey when called' do
-      expect(subject.in_journey?).to be true | false
-    end
-
-    it 'is initially not in a journey' do
-      expect(subject.in_journey).to be false
-    end
   end
 
   describe '#touch_in' do
+
     it 'responds to the method' do
       expect(subject).to respond_to(:touch_in)
     end
 
-    it 'changes @in_journey to true' do
-      subject.top_up(Oystercard::MIN_BALANCE)
-      subject.touch_in
-      expect(subject.in_journey).to be true
+    it 'raises an error if balance is insufficient' do
+      expect { subject.touch_in(station) }.to raise_error("Balance insufficient please top up")
     end
 
-    it 'raises an error if balance is insufficient' do
-      expect { subject.touch_in }.to raise_error("Balance insufficient please top up")
+    it 'assigns a station at touch in' do
+      subject.top_up(10)
+      subject.touch_in(station)
+      expect(subject.entry_station).to eq(station)
     end
   end
 
   describe '#touch_out' do
     it 'responds to the method' do
       expect(subject).to respond_to(:touch_out)
-    end
-
-    it 'changes @in_journey to false' do
-      subject.top_up(10)
-      subject.touch_in
-      subject.touch_out
-      expect(subject.in_journey).to be false
     end
 
     it 'deducts minimum fare from balance' do
