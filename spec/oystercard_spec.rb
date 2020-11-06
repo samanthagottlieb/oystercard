@@ -1,9 +1,9 @@
 require 'oystercard'
 
 describe Oystercard do
-  let(:station) { double :bank }
+  let(:e_station) { double :bank }
   let(:x_station) { double :hackney }
-  let(:journey_history) { { entry_station: station, exit_station: x_station } }
+  let(:journey_history) { { entry_station: e_station, exit_station: x_station } }
 
   it 'creates an Oystercard instance' do
     expect(subject).to be_instance_of(Oystercard)
@@ -48,13 +48,13 @@ describe Oystercard do
     end
 
     it 'raises an error if balance is insufficient' do
-      expect { subject.touch_in(station) }.to raise_error("Balance insufficient please top up")
+      expect { subject.touch_in(e_station) }.to raise_error("Balance insufficient please top up")
     end
 
-    it 'assigns a station at touch in' do
+    it 'stores an entry station at touch in' do
       subject.top_up(10)
-      subject.touch_in(station)
-      expect(subject.entry_station).to eq(station)
+      subject.touch_in(e_station)
+      expect(subject.entry_station).to eq(e_station)
     end
   end
 
@@ -67,9 +67,9 @@ describe Oystercard do
       expect { subject.touch_out(x_station) }.to change { subject.balance }.by(-Oystercard::MIN_FARE)
     end
 
-    it 'assigns a station at touch out' do
+    it 'stores an exit station at touch out' do
       subject.top_up(10)
-      subject.touch_in(station)
+      subject.touch_in(e_station)
       subject.touch_out(x_station)
       expect(subject.exit_station).to eq(x_station)
     end
@@ -82,7 +82,7 @@ describe Oystercard do
 
     it 'stores a journey inside a hash' do
       subject.top_up(10)
-      subject.touch_in(station)
+      subject.touch_in(e_station)
       subject.touch_out(x_station)
       expect(subject.journeys).to eq([journey_history])
     end
