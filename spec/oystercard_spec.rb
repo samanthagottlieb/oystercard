@@ -1,8 +1,8 @@
 require 'oystercard'
 
 describe Oystercard do
-  let(:e_station) { double :bank }
-  let(:x_station) { double :hackney }
+  let(:e_station) { double :en_station }
+  let(:x_station) { double :ex_station }
   let(:journey_history) { { entry_station: e_station, exit_station: x_station } }
 
   it 'creates an Oystercard instance' do
@@ -42,7 +42,6 @@ describe Oystercard do
   end
 
   describe '#touch_in' do
-
     it 'responds to the method' do
       expect(subject).to respond_to(:touch_in)
     end
@@ -54,7 +53,7 @@ describe Oystercard do
     it 'stores an entry station at touch in' do
       subject.top_up(10)
       subject.touch_in(e_station)
-      expect(subject.entry_station).to eq(e_station)
+      expect(subject.current_journey.entry_station).to eq(e_station)
     end
   end
 
@@ -64,14 +63,16 @@ describe Oystercard do
     end
 
     it 'deducts minimum fare from balance' do
-      expect { subject.touch_out(x_station) }.to change { subject.balance }.by(-Oystercard::MIN_FARE)
+      subject.top_up(10)
+      subject.touch_in(e_station)
+      expect { subject.touch_out(x_station) }.to change { subject.balance }.by(-1)
     end
 
-    it 'stores an exit station at touch out' do
+    it 'stores an exit station in at touch out' do
       subject.top_up(10)
       subject.touch_in(e_station)
       subject.touch_out(x_station)
-      expect(subject.exit_station).to eq(x_station)
+      expect(subject.journeys[-1].exit_station).to eq(x_station)
     end
   end
 
@@ -80,11 +81,10 @@ describe Oystercard do
       expect(subject.journeys).to be_empty
     end
 
-    it 'stores a journey inside a hash' do
+    it 'stores a journey' do
       subject.top_up(10)
       subject.touch_in(e_station)
-      subject.touch_out(x_station)
-      expect(subject.journeys).to eq([journey_history])
+      expect { subject.touch_out(x_station) }.to change { subject.journeys.length }.by(1)
     end
   end
 end
